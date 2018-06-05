@@ -87,7 +87,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>nettys.CAServer</mainClass>
+                            <mainClass>ConsumerAgent</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

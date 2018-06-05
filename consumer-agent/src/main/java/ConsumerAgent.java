@@ -9,14 +9,9 @@ import registry.IRegistry;
  */
 public class ConsumerAgent {
 
-
-    public void startService() {
+    public static void main(String[] args) throws Exception {
         CAServer server = new CAServer(Integer.valueOf(System.getProperty("server.port")));
-    }
-
-    public static void main(String[] args) {
-        ConsumerAgent ca = new ConsumerAgent();
-        ca.startService();
+        server.startServer();
     }
 
 }

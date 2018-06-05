@@ -8,6 +8,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import models.AsyncRequestHolder;
 import models.TcpFuture;
 import models.TcpRequest;
 import models.TcpRequestHolder;
@@ -72,6 +73,13 @@ public class CAClient {
         return result;
     }
 
+    public void invokeAsync(TcpRequest request, ChannelHandlerContext ctx) {
+        int index = random.nextInt(dice.size());
+        Channel channel = this.channels.get(dice.get(index));
+
+        AsyncRequestHolder.put(String.valueOf(request.getId()), ctx);
+        channel.writeAndFlush(request);
+    }
 
     private void startClient() throws Exception {
         if(null == endpoints) {
