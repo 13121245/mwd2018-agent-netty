@@ -2,6 +2,7 @@ package dubbos;
 
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,7 @@ public class RpcClient {
         this.connectManager = new ConnecManager();
     }
 
-    public Object invoke(long id, String interfaceName, String method, String parameterTypesString, String parameter) throws Exception {
+    public void asyncInvoke(long id, String interfaceName, String method, String parameterTypesString, String parameter, ChannelHandlerContext ctx) throws Exception {
 
         Channel channel = connectManager.getChannel();
 
@@ -40,19 +41,12 @@ public class RpcClient {
         request.setTwoWay(true);
         request.setData(invocation);
 
-        logger.info("requestId=" + request.getId());
+        //logger.info("requestId=" + request.getId());
 
-        RpcFuture future = new RpcFuture();
-        RpcRequestHolder.put(String.valueOf(request.getId()),future);
+        RpcRequestHolder.put(String.valueOf(request.getId()), ctx);
+        RpcRequestHolder.putString(String.valueOf(request.getId()), parameter);
 
         channel.writeAndFlush(request);
 
-        Object result = null;
-        try {
-            result = future.get();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return result;
     }
 }

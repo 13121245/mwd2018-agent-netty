@@ -15,11 +15,14 @@ import java.util.List;
 public class AgentRespDecoder extends ByteToMessageDecoder {
 
     @Override
-    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) {
+    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
         int len = byteBuf.readableBytes();
         if (len == 0) {
             return;
         }
+//        if (len != byteBuf.readableBytes()) {
+//            throw new Exception(len + " != " + byteBuf.readableBytes());
+//        }
         byte[] data = new byte[len];
         byteBuf.readBytes(data);
         Object obj = JSON.parseObject(data, TcpResponse.class);

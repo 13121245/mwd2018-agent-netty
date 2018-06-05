@@ -34,6 +34,12 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<TcpRespons
         ChannelHandlerContext ctx = AsyncRequestHolder.get(requestId);
         if(null != ctx) {
             AsyncRequestHolder.remove(requestId);
+            String paramString = AsyncRequestHolder.getString(requestId);
+            String hashVal = new String(tcpResponse.getBytes()).trim();
+            if (!hashVal.equals(String.valueOf(paramString.hashCode()))){
+                System.out.println(paramString.hashCode() + " != " + hashVal);
+            }
+            AsyncRequestHolder.removeString(requestId);
             byte[] result = new String(tcpResponse.getBytes()).trim().getBytes();
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(result));
             response.headers().set(CONTENT_TYPE, "text/html;charset=UTF-8");

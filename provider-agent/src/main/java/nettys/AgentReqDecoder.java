@@ -21,7 +21,7 @@ public class AgentReqDecoder extends ByteToMessageDecoder {
         if (len == 0) {
             return;
         }
-        System.out.println(len);
+        //System.out.println(len);
         byte[] data = new byte[len];
         byteBuf.readBytes(data);
         Object obj = JSON.parseObject(data, TcpRequest.class);

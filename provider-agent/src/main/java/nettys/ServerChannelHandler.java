@@ -16,25 +16,15 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class ServerChannelHandler extends ChannelInboundHandlerAdapter{
 
-    private static final ExecutorService executors = Executors.newFixedThreadPool(200);
     private static final RpcClient rpcClient = new RpcClient();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception{
         TcpRequest tcpRequest = (TcpRequest)msg;
 
-        executors.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    TcpResponse response = (TcpResponse) rpcClient.invoke(tcpRequest.getId(), tcpRequest.getInterfaceName(),
-                            tcpRequest.getMethodName(), tcpRequest.getParameterTypeString(), tcpRequest.getParameter());
-                    ctx.writeAndFlush(response);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        rpcClient.asyncInvoke(tcpRequest.getId(), tcpRequest.getInterfaceName(),
+                tcpRequest.getMethodName(), tcpRequest.getParameterTypeString(), tcpRequest.getParameter(), ctx);
+
     }
 
 }

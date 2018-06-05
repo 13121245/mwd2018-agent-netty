@@ -24,14 +24,14 @@ public class PAServer {
 
     public void startServer() throws Exception{
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup wokerGroup = new NioEventLoopGroup(4);
+        EventLoopGroup wokerGroup = new NioEventLoopGroup(32);
 
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, wokerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ServerChannelInitializer())
-                    .option(ChannelOption.SO_BACKLOG, 256)
+                    .option(ChannelOption.SO_BACKLOG, 512)
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture f = b.bind(this.port).sync();

@@ -31,8 +31,8 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
         if (byteBuf.readableBytes() < HEADER_LENGTH + dataLength) {
             return null;
         }
-        byteBuf.skipBytes(HEADER_LENGTH + 1);
-        byte[] payload = new byte[dataLength - 1];
+        byteBuf.skipBytes(HEADER_LENGTH + 2);
+        byte[] payload = new byte[dataLength - 2];
         byteBuf.readBytes(payload);
         byte[] requestIdBytes = Arrays.copyOfRange(header,4,12);
         long requestId = Bytes.bytes2long(requestIdBytes,0);

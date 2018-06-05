@@ -78,7 +78,10 @@ public class CAClient {
         Channel channel = this.channels.get(dice.get(index));
 
         AsyncRequestHolder.put(String.valueOf(request.getId()), ctx);
+        AsyncRequestHolder.putString(String.valueOf(request.getId()), request.getParameter());
+
         channel.writeAndFlush(request);
+
     }
 
     private void startClient() throws Exception {

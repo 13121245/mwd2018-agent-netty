@@ -12,10 +12,16 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<TcpResponse> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpResponse response) {
         String requestId = response.getRequestId();
-        RpcFuture future = RpcRequestHolder.get(requestId);
-        if(null != future){
+        ChannelHandlerContext respCtx = RpcRequestHolder.get(requestId);
+        if(null != respCtx){
             RpcRequestHolder.remove(requestId);
-            future.done(response);
+            String paramString = RpcRequestHolder.getString(requestId);
+            String hashVal = new String(response.getBytes()).trim();
+            if (!hashVal.equals(String.valueOf(paramString.hashCode()))){
+                System.out.println(paramString.hashCode() + " != " + hashVal);
+            }
+            RpcRequestHolder.removeString(requestId);
+            respCtx.writeAndFlush(response);
         }
     }
 }
