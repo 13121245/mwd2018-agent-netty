@@ -30,6 +30,7 @@ import java.util.Random;
 public class CAClient {
 
     private IRegistry registry = new EtcdRegistry(System.getProperty("etcd.url"));
+    private Bootstrap bootstrap = null;
     private List<Channel> channels = new ArrayList<>();
     private List<Integer> dice = new ArrayList<>();
     private List<Endpoint> endpoints = null;
@@ -84,7 +85,14 @@ public class CAClient {
     }
 
     private void startClient() throws Exception {
-        if(null == endpoints) {
+        if (bootstrap == null) {
+            synchronized (lock) {
+                if (bootstrap == null) {
+                    this.bootstrap = this.createBootstrap();
+                }
+            }
+        }
+        if (null == endpoints) {
             synchronized (lock) {
                 if (null == endpoints) {
                     try {
@@ -96,17 +104,17 @@ public class CAClient {
                         Endpoint endpoint = endpoints.get(i);
                         if (endpoint.getCapacity().equals("small")) {
                             channels.add(createNewChannel(endpoint.getHost(), endpoint.getPort()));
-                            for (int j = 0 ; j < 142; ++j)
+                            for(int j = 0; j < 142; j++)
                                 dice.add(i);
                             logger.info("fix endpoint:" + endpoints.get(i).getCapacity() + " on " + i);
                         } else if (endpoint.getCapacity().equals("medium")) {
                             channels.add(createNewChannel(endpoint.getHost(), endpoint.getPort()));
-                            for (int j = 0 ; j < 175; ++j)
+                            for(int j = 0; j < 175; j++)
                                 dice.add(i);
                             logger.info("fix endpoint:" + endpoints.get(i).getCapacity() + "on " + i);
                         } else if (endpoints.get(i).getCapacity().equals("large")) {
                             channels.add(createNewChannel(endpoint.getHost(), endpoint.getPort()));
-                            for (int j = 0 ; j < 195; ++j)
+                            for(int j = 0; j < 195; j++)
                                 dice.add(i);
                             logger.info("fix endpoint:" + endpoints.get(i).getCapacity() + "on " + i);
                         }
@@ -116,15 +124,19 @@ public class CAClient {
         }
     }
 
-    private Channel createNewChannel(String host, int port) throws Exception{
-        EventLoopGroup eventLoopGroup = new NioEventLoopGroup(8);
+    private Bootstrap createBootstrap() throws Exception {
+        EventLoopGroup eventLoopGroup = new NioEventLoopGroup(12);
         Bootstrap bootstrap = new Bootstrap()
                 .group(eventLoopGroup)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
                 .channel(NioSocketChannel.class)
                 .handler(new ClientChannelInitializer());
-        return bootstrap.connect(host, port).sync().channel();
+        return bootstrap;
+    }
+
+    private Channel createNewChannel(String host, int port) throws Exception {
+        return this.bootstrap.connect(host, port).sync().channel();
     }
 
 }
