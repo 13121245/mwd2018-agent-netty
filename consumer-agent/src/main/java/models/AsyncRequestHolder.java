@@ -24,17 +24,4 @@ public class AsyncRequestHolder {
     public static void remove(String requestId) {
         requestHolder.remove(requestId);
     }
-    private static ConcurrentHashMap<String, String> processingResHashCode = new ConcurrentHashMap<>();
-
-    public static void putString(String requestId,String str){
-        processingResHashCode.put(requestId,str);
-    }
-
-    public static String getString(String requestId){
-        return processingResHashCode.get(requestId);
-    }
-
-    public static void removeString(String requestId){
-        processingResHashCode.remove(requestId);
-    }
 }

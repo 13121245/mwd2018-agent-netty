@@ -78,7 +78,6 @@ public class CAClient {
         Channel channel = this.channels.get(dice.get(index));
 
         AsyncRequestHolder.put(String.valueOf(request.getId()), ctx);
-        AsyncRequestHolder.putString(String.valueOf(request.getId()), request.getParameter());
 
         channel.writeAndFlush(request);
 
@@ -97,18 +96,18 @@ public class CAClient {
                         Endpoint endpoint = endpoints.get(i);
                         if (endpoint.getCapacity().equals("small")) {
                             channels.add(createNewChannel(endpoint.getHost(), endpoint.getPort()));
-                            dice.add(i);
+                            for (int j = 0 ; j < 142; ++j)
+                                dice.add(i);
                             logger.info("fix endpoint:" + endpoints.get(i).getCapacity() + " on " + i);
                         } else if (endpoint.getCapacity().equals("medium")) {
                             channels.add(createNewChannel(endpoint.getHost(), endpoint.getPort()));
-                            dice.add(i);
-                            dice.add(i);
+                            for (int j = 0 ; j < 175; ++j)
+                                dice.add(i);
                             logger.info("fix endpoint:" + endpoints.get(i).getCapacity() + "on " + i);
                         } else if (endpoints.get(i).getCapacity().equals("large")) {
                             channels.add(createNewChannel(endpoint.getHost(), endpoint.getPort()));
-                            dice.add(i);
-                            dice.add(i);
-                            dice.add(i);
+                            for (int j = 0 ; j < 195; ++j)
+                                dice.add(i);
                             logger.info("fix endpoint:" + endpoints.get(i).getCapacity() + "on " + i);
                         }
                     }
@@ -118,7 +117,7 @@ public class CAClient {
     }
 
     private Channel createNewChannel(String host, int port) throws Exception{
-        EventLoopGroup eventLoopGroup = new NioEventLoopGroup(2);
+        EventLoopGroup eventLoopGroup = new NioEventLoopGroup(8);
         Bootstrap bootstrap = new Bootstrap()
                 .group(eventLoopGroup)
                 .option(ChannelOption.TCP_NODELAY, true)

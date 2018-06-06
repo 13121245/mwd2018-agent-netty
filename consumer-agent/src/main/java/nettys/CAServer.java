@@ -25,7 +25,7 @@ public class CAServer {
 
     public void startServer() throws Exception{
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup wokerGroup = new NioEventLoopGroup(32);
+        EventLoopGroup wokerGroup = new NioEventLoopGroup(8);
 
         try {
             ServerBootstrap b = new ServerBootstrap();

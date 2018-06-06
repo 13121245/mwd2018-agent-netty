@@ -44,7 +44,6 @@ public class RpcClient {
         //logger.info("requestId=" + request.getId());
 
         RpcRequestHolder.put(String.valueOf(request.getId()), ctx);
-        RpcRequestHolder.putString(String.valueOf(request.getId()), parameter);
 
         channel.writeAndFlush(request);
 

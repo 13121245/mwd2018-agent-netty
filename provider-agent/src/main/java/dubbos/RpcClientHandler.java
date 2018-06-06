@@ -15,12 +15,6 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<TcpResponse> {
         ChannelHandlerContext respCtx = RpcRequestHolder.get(requestId);
         if(null != respCtx){
             RpcRequestHolder.remove(requestId);
-            String paramString = RpcRequestHolder.getString(requestId);
-            String hashVal = new String(response.getBytes()).trim();
-            if (!hashVal.equals(String.valueOf(paramString.hashCode()))){
-                System.out.println(paramString.hashCode() + " != " + hashVal);
-            }
-            RpcRequestHolder.removeString(requestId);
             respCtx.writeAndFlush(response);
         }
     }
