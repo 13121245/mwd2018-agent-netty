@@ -1,6 +1,8 @@
 package models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -9,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class TcpRequest {
 
+    @JsonIgnore
     private static final AtomicLong atomicLong = new AtomicLong();
 
     private long id;
@@ -16,6 +19,10 @@ public class TcpRequest {
     private String methodName;
     private String parameterTypeString;
     private String parameter;
+
+    public TcpRequest() {
+
+    }
 
     public TcpRequest(String interfaceName, String methodName, String parameterTypeString, String parameter) {
         this.id = atomicLong.getAndIncrement();
