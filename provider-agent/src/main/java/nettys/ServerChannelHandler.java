@@ -3,6 +3,7 @@ package nettys;
 import dubbos.RpcClient;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import models.RpcRequestHolder;
 import models.TcpRequest;
 import models.TcpResponse;
 
@@ -22,9 +23,7 @@ public class ServerChannelHandler extends ChannelInboundHandlerAdapter{
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception{
         TcpRequest tcpRequest = (TcpRequest)msg;
 
-        rpcClient.asyncInvoke(tcpRequest.getId(), tcpRequest.getInterfaceName(),
-                tcpRequest.getMethodName(), tcpRequest.getParameterTypeString(), tcpRequest.getParameter(), ctx);
-
+        rpcClient.asyncInvoke(tcpRequest.getId(), tcpRequest.getParameter(), ctx);
     }
 
 }

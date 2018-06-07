@@ -24,7 +24,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<TcpRespons
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpResponse tcpResponse) {
-        String requestId = tcpResponse.getRequestId();
+        long requestId = tcpResponse.getRequestId();
         // 使用线程池时采用的方案，没必要其实...
 //        TcpFuture tcpFuture = TcpRequestHolder.get(requestId);
 //        if(null != tcpFuture) {

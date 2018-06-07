@@ -15,10 +15,10 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel>{
     @Override
     protected void initChannel(SocketChannel sc) throws Exception {
         // 返回的结果用前四个字节标识数据长度
-        sc.pipeline().addLast(new LengthFieldBasedFrameDecoder(6 * 1024, 0, 4, 0, 4))
+        sc.pipeline()//.addLast(new LengthFieldBasedFrameDecoder(2 * 1024, 0, 4, 0, 4))
                 .addLast(new LengthFieldPrepender(4))
                 .addLast(new AgentReqEncoder())
-                .addLast(new AgentRespDecoder())
-                .addLast(new ClientChannelHandler());
+                .addLast(new AgentRespDecoder());
+                //.addLast(new ClientChannelHandler());
     }
 }

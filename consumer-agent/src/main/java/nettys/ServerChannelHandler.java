@@ -49,8 +49,7 @@ public class ServerChannelHandler extends ChannelInboundHandlerAdapter {
         Map<String, List<String>> map = decoder.parameters();
         request.release();
 
-        TcpRequest tcpRequest = new TcpRequest(map.get("interface").get(0), map.get("method").get(0),
-                map.get("parameterTypesString").get(0), map.get("parameter").get(0));
+        TcpRequest tcpRequest = new TcpRequest(map.get("parameter").get(0));
         caClient.invokeAsync(tcpRequest, ctx);
 
 //        executors.submit(new Runnable() {

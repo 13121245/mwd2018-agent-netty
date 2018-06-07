@@ -1,6 +1,7 @@
 package nettys;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -25,13 +26,14 @@ public class CAServer {
 
     public void startServer() throws Exception{
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup wokerGroup = new NioEventLoopGroup(8);
+        EventLoopGroup wokerGroup = new NioEventLoopGroup(4);
 
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, wokerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ServerChannelInitializer())
+                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                     .option(ChannelOption.SO_BACKLOG, 256)
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);

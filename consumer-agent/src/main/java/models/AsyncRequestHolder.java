@@ -11,17 +11,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AsyncRequestHolder {
 
     // key: requestId,  value:
-    private static ConcurrentHashMap<String, ChannelHandlerContext> requestHolder = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Long, ChannelHandlerContext> requestHolder = new ConcurrentHashMap<>();
 
-    public static void put(String requestId, ChannelHandlerContext ctx) {
+    public static void put(long requestId, ChannelHandlerContext ctx) {
         requestHolder.put(requestId, ctx);
     }
 
-    public static ChannelHandlerContext get(String requestId) {
+    public static ChannelHandlerContext get(long requestId) {
         return requestHolder.get(requestId);
     }
 
-    public static void remove(String requestId) {
+    public static void remove(long requestId) {
         requestHolder.remove(requestId);
     }
 }

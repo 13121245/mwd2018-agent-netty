@@ -1,6 +1,7 @@
 package nettys;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -32,6 +33,7 @@ public class PAServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ServerChannelInitializer())
                     .option(ChannelOption.SO_BACKLOG, 512)
+                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture f = b.bind(this.port).sync();

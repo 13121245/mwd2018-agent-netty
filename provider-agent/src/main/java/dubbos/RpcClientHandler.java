@@ -11,7 +11,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<TcpResponse> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpResponse response) {
-        String requestId = response.getRequestId();
+        long requestId = response.getRequestId();
         ChannelHandlerContext respCtx = RpcRequestHolder.get(requestId);
         if(null != respCtx){
             RpcRequestHolder.remove(requestId);

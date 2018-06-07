@@ -38,8 +38,8 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
         long requestId = Bytes.bytes2long(requestIdBytes,0);
 
         TcpResponse response = new TcpResponse();
-        response.setRequestId(String.valueOf(requestId));
-        response.setBytes(payload);
+        response.setRequestId(requestId);
+        response.setBytes(new String(payload).trim().getBytes());
         return response;
     }
 }

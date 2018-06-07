@@ -14,7 +14,7 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         // 客户端请求的结果用前四个字节标识数据长度
-        socketChannel.pipeline().addLast(new LengthFieldBasedFrameDecoder(6 * 1024, 0, 4, 0, 4))
+        socketChannel.pipeline()//.addLast(new LengthFieldBasedFrameDecoder(2 * 1024, 0, 4, 0, 4))
                 .addLast(new LengthFieldPrepender(4))
                 .addLast(new AgentReqDecoder())
                 .addLast(new AgentRespEncoder())

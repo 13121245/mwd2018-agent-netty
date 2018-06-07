@@ -21,14 +21,14 @@ public class RpcClient {
         this.connectManager = new ConnecManager();
     }
 
-    public void asyncInvoke(long id, String interfaceName, String method, String parameterTypesString, String parameter, ChannelHandlerContext ctx) throws Exception {
+    public void asyncInvoke(long id, String parameter, ChannelHandlerContext ctx) throws Exception {
 
         Channel channel = connectManager.getChannel();
 
         RpcInvocation invocation = new RpcInvocation();
-        invocation.setMethodName(method);
-        invocation.setAttachment("path", interfaceName);
-        invocation.setParameterTypes(parameterTypesString);    // Dubbo内部用"Ljava/lang/String"来表示参数类型是String
+        invocation.setMethodName("hash");
+        invocation.setAttachment("path", "com.alibaba.dubbo.performance.demo.provider.IHelloService");
+        invocation.setParameterTypes("Ljava/lang/String;");    // Dubbo内部用"Ljava/lang/String"来表示参数类型是String
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
@@ -42,10 +42,7 @@ public class RpcClient {
         request.setData(invocation);
 
         //logger.info("requestId=" + request.getId());
-
-        RpcRequestHolder.put(String.valueOf(request.getId()), ctx);
-
-        channel.writeAndFlush(request);
-
+        RpcRequestHolder.put(id, ctx);
+        channel.writeAndFlush(request, channel.voidPromise());
     }
 }

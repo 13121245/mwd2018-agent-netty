@@ -7,17 +7,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RpcRequestHolder {
 
     // key: requestId     value: RpcFuture
-    private static ConcurrentHashMap<String,ChannelHandlerContext> processingRpc = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Long,ChannelHandlerContext> processingRpc = new ConcurrentHashMap<>();
 
-    public static void put(String requestId, ChannelHandlerContext ctx){
+    public static void put(long requestId, ChannelHandlerContext ctx){
         processingRpc.put(requestId,ctx);
     }
 
-    public static ChannelHandlerContext get(String requestId){
+    public static ChannelHandlerContext get(long requestId){
         return processingRpc.get(requestId);
     }
 
-    public static void remove(String requestId){
+    public static void remove(long requestId){
         processingRpc.remove(requestId);
     }
 }

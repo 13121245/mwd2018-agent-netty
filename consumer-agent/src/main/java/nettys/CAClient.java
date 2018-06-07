@@ -1,6 +1,7 @@
 package nettys;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -56,28 +57,11 @@ public class CAClient {
         return CAClientHolder.caClient;
     }
 
-    public Object invoke(TcpRequest request) {
-        int index = random.nextInt(dice.size());
-        Channel channel = this.channels.get(dice.get(index));
-
-        TcpFuture tcpFuture = new TcpFuture();
-        TcpRequestHolder.put(String.valueOf(request.getId()), tcpFuture);
-
-        channel.writeAndFlush(request);
-        Object result = null;
-        try {
-            result = tcpFuture.get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
     public void invokeAsync(TcpRequest request, ChannelHandlerContext ctx) {
         int index = random.nextInt(dice.size());
         Channel channel = this.channels.get(dice.get(index));
 
-        AsyncRequestHolder.put(String.valueOf(request.getId()), ctx);
+        AsyncRequestHolder.put(request.getId(), ctx);
 
         channel.writeAndFlush(request);
 
@@ -96,17 +80,17 @@ public class CAClient {
                         Endpoint endpoint = endpoints.get(i);
                         if (endpoint.getCapacity().equals("small")) {
                             channels.add(createNewChannel(endpoint.getHost(), endpoint.getPort()));
-                            for (int j = 0 ; j < 142; ++j)
+                            for (int j = 0 ; j < 132; ++j)
                                 dice.add(i);
                             logger.info("fix endpoint:" + endpoints.get(i).getCapacity() + " on " + i);
                         } else if (endpoint.getCapacity().equals("medium")) {
                             channels.add(createNewChannel(endpoint.getHost(), endpoint.getPort()));
-                            for (int j = 0 ; j < 175; ++j)
+                            for (int j = 0 ; j < 180; ++j)
                                 dice.add(i);
                             logger.info("fix endpoint:" + endpoints.get(i).getCapacity() + "on " + i);
                         } else if (endpoints.get(i).getCapacity().equals("large")) {
                             channels.add(createNewChannel(endpoint.getHost(), endpoint.getPort()));
-                            for (int j = 0 ; j < 195; ++j)
+                            for (int j = 0 ; j < 200; ++j)
                                 dice.add(i);
                             logger.info("fix endpoint:" + endpoints.get(i).getCapacity() + "on " + i);
                         }
@@ -117,11 +101,11 @@ public class CAClient {
     }
 
     private Channel createNewChannel(String host, int port) throws Exception{
-        EventLoopGroup eventLoopGroup = new NioEventLoopGroup(8);
+        EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
         Bootstrap bootstrap = new Bootstrap()
                 .group(eventLoopGroup)
                 .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .channel(NioSocketChannel.class)
                 .handler(new ClientChannelInitializer());
         return bootstrap.connect(host, port).sync().channel();

@@ -17,7 +17,7 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
     @Override
     protected void initChannel(SocketChannel sc) throws Exception {
         sc.pipeline().addLast("codec", new HttpServerCodec())
-                .addLast("compressor", new HttpContentCompressor())
+                //.addLast("compressor", new HttpContentCompressor())
                 .addLast("aggregator", new HttpObjectAggregator(512 * 1024))
                 .addLast(new ServerChannelHandler());
     }
