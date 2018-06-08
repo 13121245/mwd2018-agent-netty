@@ -45,7 +45,7 @@ public class AgentReqDecoder extends ByteToMessageDecoder {
 //        byteBuf.readBytes(data, 0, len);
 //        TcpRequest tcpRequest = JSON.parseObject(data,0, len, IOUtils.UTF8, TcpRequest.class);
 //        list.add(tcpRequest);
-        //ArrayList<TcpRequest> batchRequests = new ArrayList<>();
+        ArrayList<TcpRequest> batchRequests = new ArrayList<>();
         while(byteBuf.readableBytes() > 4) {
             int len = byteBuf.getInt(byteBuf.readerIndex());
             if (byteBuf.readableBytes() - 4 < len) {
@@ -54,19 +54,20 @@ public class AgentReqDecoder extends ByteToMessageDecoder {
             byteBuf.skipBytes(4);
             byteBuf.readBytes(data, 0, len);
             TcpRequest tcpRequest = JSON.parseObject(data,0, len, IOUtils.UTF8, TcpRequest.class);
-            //batchRequests.add(tcpRequest);
-            list.add(tcpRequest);
+            batchRequests.add(tcpRequest);
+            //list.add(tcpRequest);
         }
-//
-//        if (batchRequests.size() <= 0) return;
-//        else if (batchRequests.size() == 1) {
-//            rpcClient.asyncInvoke(batchRequests.get(0).getId(),batchRequests.get(0).getParameter(), true);
-//        } else {
-//            for (int i = 0; i < batchRequests.size() - 1; ++i) {
-//                TcpRequest tcpRequest = batchRequests.get(i);
-//                rpcClient.asyncInvoke(tcpRequest.getId(),tcpRequest.getParameter(), i == batchRequests.size() - 1);
-//            }
-//        }
+
+        if (batchRequests.size() >= 1) {
+            if (batchRequests.size() > 1) {
+                System.out.println("Batch size: " + batchRequests.size());
+            }
+            for (int i = 0; i < batchRequests.size(); ++i) {
+                TcpRequest tcpRequest = batchRequests.get(i);
+                rpcClient.asyncInvoke(tcpRequest.getId(),tcpRequest.getParameter(), channelHandlerContext);
+            }
+            rpcClient.flush();
+        }
     }
 
 }

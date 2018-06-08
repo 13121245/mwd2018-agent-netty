@@ -42,7 +42,23 @@ public class RpcClient {
         request.setData(invocation);
 
         //logger.info("requestId=" + request.getId());
-        RpcRequestHolder.put(id, ctx);
-        channel.writeAndFlush(request, channel.voidPromise());
+        channel.eventLoop().execute(new Runnable() {
+            @Override
+            public void run() {
+                RpcRequestHolder.put(id, ctx);
+                channel.write(request, channel.voidPromise());
+            }
+        });
+
+    }
+
+    public void flush() throws Exception {
+        Channel channel = connectManager.getChannel();
+        channel.eventLoop().execute(new Runnable() {
+            @Override
+            public void run() {
+                channel.flush();
+            }
+        });
     }
 }

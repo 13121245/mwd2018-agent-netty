@@ -17,7 +17,7 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
         socketChannel.pipeline()//.addLast(new LengthFieldBasedFrameDecoder(2 * 1024, 0, 4, 0, 4))
                 .addLast(new LengthFieldPrepender(4))
                 .addLast(new AgentReqDecoder())
-                .addLast(new AgentRespEncoder())
-                .addLast(new ServerChannelHandler());
+                .addLast(new AgentRespEncoder());
+                //.addLast(new ServerChannelHandler());
     }
 }
