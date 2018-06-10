@@ -18,11 +18,11 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class ServerChannelHandler extends SimpleChannelInboundHandler<TcpRequest>{
 
-    private static final RpcClient rpcClient = new RpcClient();
+    //private static final RpcClient rpcClient = new RpcClient();
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, TcpRequest tcpRequest) throws Exception{
-        rpcClient.asyncInvoke(tcpRequest.getId(), tcpRequest.getParameter(), ctx);
+        //rpcClient.asyncInvoke(tcpRequest.getId(), tcpRequest.getParameter(), ctx);
     }
 
 }

@@ -3,7 +3,11 @@ package dubbos;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +16,8 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,7 +27,9 @@ public class RpcClient {
     private SocketChannel socketChannel = null;
     private SocketChannel outGoingSocketChannel = null;
 
-    private ExecutorService writerService = Executors.newFixedThreadPool(4);
+
+    private BlockingQueue<TcpRequest> reqQueue = new ArrayBlockingQueue<TcpRequest>(512);
+    private ExecutorService writerService = Executors.newSingleThreadExecutor();
     private ExecutorService readerService = Executors.newSingleThreadExecutor();
 
     public RpcClient(SocketChannel outGoingSocketChannel) throws Exception {
@@ -35,40 +43,47 @@ public class RpcClient {
         socketChannel.socket().setTcpNoDelay(true);
         socketChannel.socket().setKeepAlive(true);
         startReadResponseService();
-    }
 
-    public void asynInvoke(long id, String parameter) throws Exception {
-        writerService.submit(new Runnable() {
+        Executors.newSingleThreadExecutor().submit(new Runnable() {
+            private ByteBuffer byteBuf = ByteBuffer.allocate(4 * 1024);
             @Override
             public void run() {
                 try {
-                    RpcInvocation invocation = new RpcInvocation();
-                    invocation.setMethodName("hash");
-                    invocation.setAttachment("path", "com.alibaba.dubbo.performance.demo.provider.IHelloService");
-                    invocation.setParameterTypes("Ljava/lang/String;");    // Dubbo内部用"Ljava/lang/String"来表示参数类型是String
+                    TcpRequest req;
+                    while ((req = reqQueue.take()) != null) {
+                        RpcInvocation invocation = new RpcInvocation();
+                        invocation.setMethodName("hash");
+                        invocation.setAttachment("path", "com.alibaba.dubbo.performance.demo.provider.IHelloService");
+                        invocation.setParameterTypes("Ljava/lang/String;");    // Dubbo内部用"Ljava/lang/String"来表示参数类型是String
 
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
-                    JsonUtils.writeObject(parameter, writer);
-                    invocation.setArguments(out.toByteArray());
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
+                        JsonUtils.writeObject(req.getParameter(), writer);
+                        invocation.setArguments(out.toByteArray());
 
-                    Request request = new Request();
-                    request.setId(id);
-                    request.setVersion("2.0.0");
-                    request.setTwoWay(true);
-                    request.setData(invocation);
+                        Request request = new Request();
+                        request.setId(req.getId());
+                        request.setVersion("2.0.0");
+                        request.setTwoWay(true);
+                        request.setData(invocation);
 
-                    // write request
-                    ByteBuffer byteBuf = ByteBuffer.allocate(4 * 1024);
-                    byteBuf.clear();
-                    DubboCodec.encode(byteBuf, request);
-                    byteBuf.flip();
-                    writeAll(socketChannel, byteBuf);
+                        // write request
+
+                        byteBuf.clear();
+                        DubboCodec.encode(byteBuf, request);
+                        byteBuf.flip();
+                        writeAll(socketChannel, byteBuf);
+                    }
+
                 } catch(Exception e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
+
+    public void asynInvoke(TcpRequest req) throws Exception {
+        reqQueue.offer(req);
     }
 
     public void startReadResponseService() {
@@ -81,19 +96,19 @@ public class RpcClient {
                 while(true) {
                     try {
                         byteBuffer.clear();
+                        byteBuffer.limit(DubboCodec.HEADER_LENGTH);
                         readFull(socketChannel, byteBuffer, DubboCodec.HEADER_LENGTH);
-                        byteBuffer.flip();
                         int dataLength = byteBuffer.getInt(12);
-                        byteBuffer.flip();
                         long requestId = byteBuffer.getLong(4);
                         byteBuffer.clear();
+                        byteBuffer.limit(2);
                         readFull(socketChannel, byteBuffer, 2);
                         byte[] data = new byte[dataLength-2];
                         ByteBuffer payloadBuf = ByteBuffer.wrap(data);
                         readFull(socketChannel, payloadBuf, dataLength-2);
                         TcpResponse response = new TcpResponse();
                         response.setRequestId(requestId);
-                        response.setBytes(data);
+                        response.setBytes(new String(data).trim().getBytes());
 
                         byte[] jsonBytes = JSON.toJSONBytes(response);
                         writerBuffer.clear();

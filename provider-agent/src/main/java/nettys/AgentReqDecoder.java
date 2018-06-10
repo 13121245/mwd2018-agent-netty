@@ -27,7 +27,7 @@ import static io.netty.handler.codec.rtsp.RtspHeaders.Names.CONNECTION;
  * Description:
  */
 public class AgentReqDecoder extends ByteToMessageDecoder {
-    private static final RpcClient rpcClient = new RpcClient();
+    //private static final RpcClient rpcClient = new RpcClient();
     private static ThreadLocal<byte[]> dataHolder = new ThreadLocal<byte[]>() {
         @Override
         public byte[] initialValue() {
@@ -38,36 +38,12 @@ public class AgentReqDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
         byte[] data = dataHolder.get();
-//        int len = byteBuf.readableBytes();
-//        if (len == 0) {
-//            return;
-//        }
-//        byteBuf.readBytes(data, 0, len);
-//        TcpRequest tcpRequest = JSON.parseObject(data,0, len, IOUtils.UTF8, TcpRequest.class);
-//        list.add(tcpRequest);
-        ArrayList<TcpRequest> batchRequests = new ArrayList<>();
-        while(byteBuf.readableBytes() > 4) {
-            int len = byteBuf.getInt(byteBuf.readerIndex());
-            if (byteBuf.readableBytes() - 4 < len) {
-                return;
-            }
-            byteBuf.skipBytes(4);
-            byteBuf.readBytes(data, 0, len);
-            TcpRequest tcpRequest = JSON.parseObject(data,0, len, IOUtils.UTF8, TcpRequest.class);
-            batchRequests.add(tcpRequest);
-            //list.add(tcpRequest);
-        }
-
-        if (batchRequests.size() >= 1) {
-            if (batchRequests.size() > 1) {
-                System.out.println("Batch size: " + batchRequests.size());
-            }
-            for (int i = 0; i < batchRequests.size(); ++i) {
-                TcpRequest tcpRequest = batchRequests.get(i);
-                rpcClient.asyncInvoke(tcpRequest.getId(),tcpRequest.getParameter(), channelHandlerContext);
-            }
-            rpcClient.flush();
-        }
+        int len = byteBuf.getInt(byteBuf.readerIndex());
+        if (byteBuf.readableBytes() - 4 < len) {
+            return;
+        }byteBuf.skipBytes(4);
+        byteBuf.readBytes(data, 0, len);
+        TcpRequest tcpRequest = JSON.parseObject(data,0, len, IOUtils.UTF8, TcpRequest.class);
+        //rpcClient.asyncInvoke(tcpRequest.getId(), tcpRequest.getParameter(), channelHandlerContext);
     }
-
 }
