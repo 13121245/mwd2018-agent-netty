@@ -20,17 +20,18 @@ public class CAServer {
 
     private static final Logger logger = LoggerFactory.getLogger(CAServer.class);
 
+    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(8);
+
     public CAServer(int port) {
         this.port = port;
     }
 
     public void startServer() throws Exception{
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup wokerGroup = new NioEventLoopGroup(4);
-
+        CAClient caClient = CAClient.getCAClient();
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, wokerGroup)
+            b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ServerChannelInitializer())
                     .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
@@ -40,15 +41,29 @@ public class CAServer {
             ChannelFuture f = b.bind(this.port).sync();
             f.channel().closeFuture().sync();
         } finally {
-            wokerGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
     }
 
+    public static EventLoopGroup getWorkerGroup() {
+        return workerGroup;
+    }
+
+    public static void shutdownWorkerGroup() {
+        if(!workerGroup.isShutdown()) {
+            workerGroup.shutdownGracefully();
+        }
+    }
+
     public static void main(String[] args) throws Exception{
-        CAServer server = new CAServer(20000);
-        server.startServer();
-        logger.info("consumer agent server started");
+        try {
+            CAServer server = new CAServer(20000);
+            server.startServer();
+        } finally {
+            CAServer.shutdownWorkerGroup();
+        }
+
     }
 
 }

@@ -13,7 +13,7 @@ public class AgentRespEncoder extends MessageToByteEncoder{
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf buffer) throws Exception {
-        byte[] data = JSON.toJSONBytes(msg);
+            byte[] data = JSON.toJSONBytes(msg);
 //        buffer.writeInt(data.length);
         buffer.writeBytes(data);
     }

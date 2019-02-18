@@ -2,10 +2,7 @@ package nettys;
 
 import com.google.common.base.Charsets;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -33,6 +30,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
  * Created by zjw on 2018/05/30 10:26
  * Description:
  */
+@ChannelHandler.Sharable
 public class ServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     //    private static final ExecutorService executors = Executors.newFixedThreadPool(256);
